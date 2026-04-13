@@ -302,6 +302,28 @@ final class EventProcessor {
         orphanCheckPaused = false
     }
 
+    // MARK: - Force Close (Break Glass)
+
+    func forceCloseAllSessions() {
+        processingQueue.async { [weak self] in
+            guard let self = self else { return }
+            let now = Int(Date().timeIntervalSince1970)
+
+            for (_, event) in self.openSessions {
+                self.closeOrphanSession(event, endTs: now)
+            }
+
+            let hadSessions = !self.openSessions.isEmpty
+            self.openSessions.removeAll()
+
+            if hadSessions {
+                DispatchQueue.main.async {
+                    self.onSessionUpdate()
+                }
+            }
+        }
+    }
+
     // MARK: - Events File Maintenance
 
     func rotateEventsFileIfNeeded() {

@@ -179,6 +179,38 @@
     margin-top: 4px;
   }
 
+  /* Break Glass Stop Button */
+  .stop-btn-container {
+    text-align: center;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    display: none;
+  }
+  .stop-btn-container.visible { display: block; }
+  .stop-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: transparent;
+    border: 1px dashed var(--danger);
+    border-radius: 6px;
+    color: var(--danger);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+    opacity: 0.7;
+  }
+  .stop-btn:hover {
+    background: var(--danger-bg);
+    border-style: solid;
+    opacity: 1;
+  }
+
   /* Chart */
   .chart-header {
     display: flex;
@@ -462,6 +494,13 @@
       <div class="hero-toggle-hint" id="toggleHint">tap to show weekly total</div>
     </div>
 
+    <!-- Break Glass Stop Button -->
+    <div class="stop-btn-container" id="stopBtnContainer">
+      <button class="stop-btn" onclick="forceStop()">
+        &#x1F6D1; Stop &mdash; end stuck session
+      </button>
+    </div>
+
     <!-- Flip view toggle -->
     <div style="text-align:center; margin-bottom:12px;">
       <button id="flipBtn" onclick="toggleFlip()" style="background:none; border:none; font:inherit; font-size:10px; color:var(--text-muted); cursor:pointer; padding:4px 8px;">
@@ -677,7 +716,9 @@ function renderHero() {
     heroSub.classList.remove('idle');
     pulseDot.classList.add('active');
     heroStatus.textContent = 'currently thinking... ' + formatTimer(d.activeElapsed);
+    document.getElementById('stopBtnContainer').classList.add('visible');
   } else {
+    document.getElementById('stopBtnContainer').classList.remove('visible');
     heroNum.classList.remove('active');
     heroSub.classList.add('idle');
     pulseDot.classList.remove('active');
@@ -899,6 +940,10 @@ function toggleLogin() {
 
 function quitApp() {
   window.webkit.messageHandlers.action.postMessage({type: 'quit'});
+}
+
+function forceStop() {
+  window.webkit.messageHandlers.action.postMessage({type: 'forceStopSessions'});
 }
 
 function showHowItWorks() {

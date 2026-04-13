@@ -115,6 +115,9 @@ final class DashboardBridge: NSObject, WKScriptMessageHandler {
         case "quit":
             NSApp.terminate(nil)
 
+        case "forceStopSessions":
+            eventProcessor?.forceCloseAllSessions()
+
         default:
             break
         }
