@@ -31,7 +31,7 @@ A macOS menu bar app that tracks how long you spend waiting for Claude Code to r
 
 ```bash
 brew tap Exorust/tap
-brew install --cask claude-still-thinking
+brew install --cask --no-quarantine claude-still-thinking
 ```
 
 ### Download
