@@ -1,14 +1,18 @@
+<div align="center">
+
 # Claude is Thinking?
 
-<img width="405" height="660" alt="image" src="https://github.com/user-attachments/assets/81655fdf-b222-4365-b9b7-718135b889a4" /> <img width="400" height="500" alt="image" src="https://github.com/user-attachments/assets/8e8428d8-ef87-4975-bd72-6bcc9017b15d" />
+**You know that feeling.** You hit enter on a prompt, Claude starts "thinking,"<br>and suddenly you're reorganizing your desk drawer, making coffee, and wondering<br>if the AI is writing a novel in there.
 
-
-
-**You know that feeling.** You hit enter on a prompt, Claude starts "thinking," and suddenly you're reorganizing your desk drawer, making coffee, questioning your career choices, and wondering if the AI is writing a novel in there.
-
-This app measures exactly how much of your life you've donated to that blinking cursor.
+*This app measures exactly how much of your life you've donated to that blinking cursor.*
 
 ![menu bar timer](https://img.shields.io/badge/menu_bar-timer-E8734A) ![macOS 13+](https://img.shields.io/badge/macOS-13%2B-333) ![Swift 5.9+](https://img.shields.io/badge/Swift-5.9%2B-F05138) ![License MIT](https://img.shields.io/badge/license-MIT-blue)
+
+<br>
+
+<img width="380" alt="Dashboard" src="https://github.com/user-attachments/assets/81655fdf-b222-4365-b9b7-718135b889a4" />&nbsp;&nbsp;&nbsp;&nbsp;<img width="380" alt="Share Card" src="https://github.com/user-attachments/assets/8e8428d8-ef87-4975-bd72-6bcc9017b15d" />
+
+</div>
 
 ## What It Does
 
