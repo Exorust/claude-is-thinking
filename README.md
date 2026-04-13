@@ -1,135 +1,89 @@
 # Claude is Thinking?
 
-**How much time did you waste waiting for Claude Code?**
+**You know that feeling.** You hit enter on a prompt, Claude starts "thinking," and suddenly you're reorganizing your desk drawer, making coffee, questioning your career choices, and wondering if the AI is writing a novel in there.
 
-A macOS menu bar app that tracks how long you spend waiting for Claude Code to respond. See your stats, get reminded to touch grass, and share your numbers.
+This app measures exactly how much of your life you've donated to that blinking cursor.
 
-![menu bar timer](https://img.shields.io/badge/menu_bar-timer-4ade80) ![macOS 13+](https://img.shields.io/badge/macOS-13%2B-333) ![Swift 5.9+](https://img.shields.io/badge/Swift-5.9%2B-F05138) ![License MIT](https://img.shields.io/badge/license-MIT-blue)
+![menu bar timer](https://img.shields.io/badge/menu_bar-timer-E8734A) ![macOS 13+](https://img.shields.io/badge/macOS-13%2B-333) ![Swift 5.9+](https://img.shields.io/badge/Swift-5.9%2B-F05138) ![License MIT](https://img.shields.io/badge/license-MIT-blue)
 
-## Features
+## What It Does
 
-**Live timer** in the menu bar while Claude Code is thinking.
+A macOS menu bar app that tracks how long you spend waiting for Claude Code to respond. It won't make Claude faster. It will make you aware of how much time you spend in a long-distance relationship with an autocomplete.
 
-**Dashboard** with today's total, weekly chart, average wait per prompt, longest session, and recent activity. Toggle between daily and weekly views.
-
-**Share cards** as PNG images. Post your wait time to Twitter, LinkedIn, Bluesky, or Threads. The image is copied to your clipboard and the compose window opens automatically.
-
-**Touch grass notifications** when your cumulative daily wait time crosses a threshold. Rotating messages like "Claude has been thinking for 32 minutes today. Your houseplants miss you."
+- **Live timer** in the menu bar while Claude is thinking (the number goes up. that's the feature.)
+- **Dashboard** with today's total, weekly chart, average wait, longest session, and recent activity
+- **Share cards** — generate a PNG stat card and post your shame to Twitter, LinkedIn, or Reddit
+- **Touch grass notifications** — gentle (and increasingly less gentle) reminders that the outside world exists
+- **Break glass button** — for when Claude gets stuck and you need to end the suffering manually
+- **Theme support** — Claude Orange or Terminal Green, because aesthetics matter when you're waiting
 
 ## Install
 
-### Homebrew (coming soon)
+### Homebrew
 
-```
-brew install --cask time-spend
+```bash
+brew tap Exorust/tap
+brew install --cask claude-is-thinking
 ```
 
 ### Download
 
-Grab the latest `.dmg` from [Releases](../../releases).
+Grab the latest `.dmg` from [Releases](../../releases). Open it. Drag to Applications. Question nothing.
 
 ### Build from source
 
-Requires Swift 5.9+ and macOS 13+.
+Requires Swift 5.9+ and macOS 13+. For people who enjoy waiting for builds while tracking how long they wait for AI.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/time-spend.git
-cd time-spend/TimeSpend
+git clone https://github.com/Exorust/claude-is-thinking.git
+cd claude-is-thinking/TimeSpend
 swift build
 ./scripts/bundle-app.sh
-open build/TimeSpend.app
+open "build/Claude is Thinking?.app"
 ```
 
 ## How It Works
 
-Claude is Thinking? uses [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) to track wait time. No process monitoring, no accessibility permissions, no heuristics.
+Claude is Thinking? uses [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) — no process monitoring, no accessibility permissions, no heuristics, no vibes.
 
 On first launch, click **Enable Tracking** to install two hooks into `~/.claude/settings.json`:
 
-- `UserPromptSubmit` fires when you send a prompt (starts the timer)
-- `Stop` fires when Claude finishes responding (stops the timer)
+- `UserPromptSubmit` — fires when you send a prompt (starts the clock on your existential wait)
+- `Stop` — fires when Claude finishes responding (sweet relief)
 
-The hooks write timestamped events to `~/Library/Application Support/TimeSpend/events.jsonl`. The app watches this file and pairs start/end events into sessions stored in a local SQLite database.
+Events are written to a local JSONL file, paired into sessions, and stored in SQLite. That's it. No cloud. No telemetry. Just you and your numbers.
 
-**Your data never leaves your Mac.** No accounts, no telemetry, no network requests.
+**Your data never leaves your Mac.**
 
 ## Usage
 
-1. Launch the app. A timer icon (⏲) appears in your menu bar.
+1. Launch the app. A timer icon appears in your menu bar.
 2. Click **Enable Tracking** on the first-run screen.
-3. Use Claude Code normally. The menu bar shows a live timer while Claude is thinking.
+3. Use Claude Code normally. Watch the timer count up. Feel things.
 4. Click the menu bar icon to see your dashboard.
-5. Click **Share Your Stats** to generate and share a stat card.
+5. Click **Share Your Stats** to generate a card and broadcast your patience to the world.
 
 ### Settings
 
-Click the gear icon in the dashboard to configure:
-
-- **Touch grass threshold**: 15m, 30m, 45m, or 1h (or off)
-- **Launch at login**: Start automatically
-- **Disable tracking**: Removes hooks from `~/.claude/settings.json`
-
-## Project Structure
-
-```
-TimeSpend/
-├── Package.swift
-├── Sources/TimeSpend/
-│   ├── App/
-│   │   ├── main.swift              # Entry point
-│   │   └── AppDelegate.swift       # Menu bar, popover, lifecycle
-│   ├── Detection/
-│   │   ├── HookInstaller.swift     # Installs/removes Claude Code hooks
-│   │   └── EventProcessor.swift    # Watches events.jsonl, pairs sessions
-│   ├── Data/
-│   │   ├── DataStore.swift         # SQLite via GRDB, queries, maintenance
-│   │   └── Models.swift            # WaitSession, DashboardData, HookEvent
-│   ├── Notifications/
-│   │   └── GrassNotifier.swift     # Touch grass notifications
-│   ├── UI/
-│   │   ├── DashboardBridge.swift   # Swift <-> WebView communication
-│   │   └── ShareCardRenderer.swift # HTML -> PNG via WKWebView snapshot
-│   └── Resources/
-│       ├── dashboard.html          # Dashboard UI (HTML/CSS/JS)
-│       └── Hook/
-│           └── timespend-hook.sh   # Hook script installed into Claude Code
-└── scripts/
-    └── bundle-app.sh              # Creates .app bundle from SPM build
-```
-
-## Tech Stack
-
-- **Swift 5.9+** with Swift Package Manager
-- **AppKit** for menu bar and popover
-- **WKWebView** for dashboard rendering
-- **GRDB.swift** for SQLite (WAL mode, DatabasePool)
-- **UNNotificationCenter** for touch grass alerts
-
-## Data Storage
-
-All data is stored locally at `~/Library/Application Support/TimeSpend/`:
-
-| File | Purpose |
-|------|---------|
-| `data.db` | SQLite database with sessions and settings |
-| `events.jsonl` | Raw hook events (rotated at 1MB) |
-| `timespend-hook.sh` | Hook script called by Claude Code |
-
-Sessions older than 90 days are automatically pruned on app launch.
+- **Touch grass threshold** — when to start nudging you (2m, 3m, or 5m of cumulative wait time)
+- **Accent color** — Claude Orange or Terminal Green
+- **Theme** — System, Light, or Dark
+- **Launch at login** — start automatically, because you'll forget otherwise
+- **Disable tracking** — for when ignorance becomes bliss again
 
 ## Privacy
 
-- Claude is Thinking? **never** reads your terminal content or Claude Code conversations.
-- It only records timestamps: when a prompt was sent and when a response finished.
-- All data is stored locally. Nothing is sent anywhere.
-- The share card is generated locally. Social sharing opens your browser, the image stays on your clipboard.
+- **Never** reads your terminal content or Claude Code conversations
+- Only records timestamps: when a prompt was sent and when a response finished
+- All data is stored locally. Nothing is sent anywhere. Ever.
+- Share cards are generated locally. Social sharing opens your browser with the image on your clipboard.
 
 ## Requirements
 
 - macOS 13 (Ventura) or later
 - Claude Code CLI installed
-- No special permissions needed
+- A willingness to confront uncomfortable truths about your workflow
 
 ## License
 
-MIT
+MIT — do whatever you want with it. We're all just killing time anyway.
