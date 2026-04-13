@@ -3,9 +3,10 @@
 set -e
 
 APP_NAME="TimeSpend"
+DISPLAY_NAME="Claude is Thinking?"
 BUNDLE_ID="dev.timespend.app"
 BUILD_DIR=".build/debug"
-APP_DIR="build/${APP_NAME}.app"
+APP_DIR="build/${DISPLAY_NAME}.app"
 CONTENTS="${APP_DIR}/Contents"
 MACOS="${CONTENTS}/MacOS"
 RESOURCES="${CONTENTS}/Resources"
@@ -41,10 +42,12 @@ cat > "${CONTENTS}/Info.plist" << 'PLIST'
     <string>6.0</string>
     <key>CFBundleName</key>
     <string>Claude is Thinking?</string>
+    <key>CFBundleDisplayName</key>
+    <string>Claude is Thinking?</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>1.1.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSMinimumSystemVersion</key>
