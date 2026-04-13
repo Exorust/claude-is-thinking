@@ -38,6 +38,11 @@ brew install --cask claude-still-thinking
 
 Grab the latest `.dmg` from [Releases](../../releases). Open it. Drag to Applications. Question nothing.
 
+> **macOS Gatekeeper note:** The app isn't code-signed yet, so macOS may say it's "damaged." Fix it with:
+> ```bash
+> xattr -cr "/Applications/Claude Still Thinking?.app"
+> ```
+
 ### Build from source
 
 Requires Swift 5.9+ and macOS 13+. For people who enjoy waiting for builds while tracking how long they wait for AI.
