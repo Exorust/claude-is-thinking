@@ -31,21 +31,21 @@ for size in sizes {
     let cornerRadius = CGFloat(size) * 0.22
     let path = NSBezierPath(roundedRect: bgRect, xRadius: cornerRadius, yRadius: cornerRadius)
 
-    // Gradient background: dark green to black
-    let gradient = NSGradient(starting: NSColor(red: 0.05, green: 0.15, blue: 0.05, alpha: 1.0),
-                              ending: NSColor(red: 0.1, green: 0.25, blue: 0.1, alpha: 1.0))!
+    // Gradient background: dark warm brown
+    let gradient = NSGradient(starting: NSColor(red: 0.15, green: 0.08, blue: 0.05, alpha: 1.0),
+                              ending: NSColor(red: 0.20, green: 0.12, blue: 0.08, alpha: 1.0))!
     gradient.draw(in: path, angle: -90)
 
-    // Draw the symbol centered in green
+    // Draw the symbol centered in orange
     let symbolSize = configured.size
     let x = (CGFloat(size) - symbolSize.width) / 2
     let y = (CGFloat(size) - symbolSize.height) / 2
     let drawRect = NSRect(x: x, y: y, width: symbolSize.width, height: symbolSize.height)
 
-    // Tint the symbol green
+    // Tint the symbol orange
     let tinted = NSImage(size: symbolSize)
     tinted.lockFocus()
-    NSColor(red: 0.29, green: 0.87, blue: 0.50, alpha: 1.0).set() // #4ade80
+    NSColor(red: 0.91, green: 0.45, blue: 0.29, alpha: 1.0).set() // #E8734A
     drawRect.offsetBy(dx: -x, dy: -y).fill(using: .sourceOver)
     configured.draw(in: NSRect(origin: .zero, size: symbolSize),
                     from: .zero, operation: .destinationIn, fraction: 1.0)

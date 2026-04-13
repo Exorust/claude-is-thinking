@@ -15,6 +15,30 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         webView.configuration.userContentController.add(self, name: "share")
     }
 
+    func pushAccentColor() {
+        let accentColor = dataStore.getSetting(.accentColor) ?? "orange"
+        let js = "window.applyAccentColor('\(accentColor)')"
+        DispatchQueue.main.async {
+            self.webView.evaluateJavaScript(js)
+        }
+    }
+
+    func pushAppearance() {
+        let appearance = dataStore.getSetting(.appearance) ?? "system"
+        let js = "window.applyAppearance('\(appearance)')"
+        DispatchQueue.main.async {
+            self.webView.evaluateJavaScript(js)
+        }
+    }
+
+    private func currentAccentColor() -> String {
+        return dataStore.getSetting(.accentColor) ?? "orange"
+    }
+
+    private func currentAppearance() -> String {
+        return dataStore.getSetting(.appearance) ?? "system"
+    }
+
     func pushShareData() {
         let activeStart = eventProcessor?.activeSessionStartTime
         let data = dataStore.getDashboardData(activeSessionStart: activeStart)
@@ -74,7 +98,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         let activeStart = eventProcessor?.activeSessionStartTime
         let data = dataStore.getDashboardData(activeSessionStart: activeStart)
 
-        shareCardRenderer?.renderCard(data: data, period: period) { [weak self] image in
+        shareCardRenderer?.renderCard(data: data, period: period, accentColor: currentAccentColor(), appearance: currentAppearance()) { [weak self] image in
             guard let self = self, let image = image,
                   let tiffData = image.tiffRepresentation,
                   let bitmapRep = NSBitmapImageRep(data: tiffData),
@@ -116,7 +140,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         let activeStart = eventProcessor?.activeSessionStartTime
         let data = dataStore.getDashboardData(activeSessionStart: activeStart)
 
-        shareCardRenderer?.renderCard(data: data, period: period) { [weak self] image in
+        shareCardRenderer?.renderCard(data: data, period: period, accentColor: currentAccentColor(), appearance: currentAppearance()) { [weak self] image in
             guard let self = self, let image = image else { return }
             self.copyImageToClipboard(image)
             self.saveImageToDownloads(image, period: period)
@@ -132,7 +156,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         let activeStart = eventProcessor?.activeSessionStartTime
         let data = dataStore.getDashboardData(activeSessionStart: activeStart)
 
-        shareCardRenderer?.renderCard(data: data, period: period) { [weak self] image in
+        shareCardRenderer?.renderCard(data: data, period: period, accentColor: currentAccentColor(), appearance: currentAppearance()) { [weak self] image in
             guard let self = self, let image = image else { return }
             self.copyImageToClipboard(image)
 
@@ -148,7 +172,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         let activeStart = eventProcessor?.activeSessionStartTime
         let data = dataStore.getDashboardData(activeSessionStart: activeStart)
 
-        shareCardRenderer?.renderCard(data: data, period: period) { [weak self] image in
+        shareCardRenderer?.renderCard(data: data, period: period, accentColor: currentAccentColor(), appearance: currentAppearance()) { [weak self] image in
             guard let self = self, let image = image else { return }
             self.copyImageToClipboard(image)
             self.saveImageToDownloads(image, period: period)
@@ -159,7 +183,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         let activeStart = eventProcessor?.activeSessionStartTime
         let data = dataStore.getDashboardData(activeSessionStart: activeStart)
 
-        shareCardRenderer?.renderCard(data: data, period: period) { image in
+        shareCardRenderer?.renderCard(data: data, period: period, accentColor: currentAccentColor(), appearance: currentAppearance()) { image in
             guard let image = image else { return }
 
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("claude-is-thinking-card.png")
@@ -182,7 +206,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         let activeStart = eventProcessor?.activeSessionStartTime
         let data = dataStore.getDashboardData(activeSessionStart: activeStart)
 
-        shareCardRenderer?.renderCard(data: data, period: period) { image in
+        shareCardRenderer?.renderCard(data: data, period: period, accentColor: currentAccentColor(), appearance: currentAppearance()) { image in
             guard let image = image,
                   let tiffData = image.tiffRepresentation,
                   let bitmapRep = NSBitmapImageRep(data: tiffData),

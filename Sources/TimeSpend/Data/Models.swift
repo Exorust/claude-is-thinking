@@ -92,4 +92,5 @@ enum SettingsKey: String {
     case dashboardView = "dashboard_view"         // "today" / "week"
     case eventsFileOffset = "events_file_offset"  // UInt64 as string
     case appearance = "appearance"                // "system" / "light" / "dark"
+    case accentColor = "accent_color"             // "orange" / "green"
 }

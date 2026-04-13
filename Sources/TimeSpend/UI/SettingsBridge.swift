@@ -20,12 +20,14 @@ final class SettingsBridge: NSObject, WKScriptMessageHandler {
         let launchAtLogin = dataStore.getSetting(.launchAtLogin) == "true"
         let hooksInstalled = HookInstaller().isInstalled
         let appearance = dataStore.getSetting(.appearance) ?? "system"
+        let accentColor = dataStore.getSetting(.accentColor) ?? "orange"
 
         let settings: [String: Any] = [
             "grassThreshold": grassThreshold,
             "launchAtLogin": launchAtLogin,
             "hooksInstalled": hooksInstalled,
-            "appearance": appearance
+            "appearance": appearance,
+            "accentColor": accentColor
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: settings),

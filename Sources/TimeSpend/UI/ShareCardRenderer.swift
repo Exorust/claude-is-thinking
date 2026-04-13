@@ -35,9 +35,9 @@ final class ShareCardRenderer {
         self.offscreenWebView = webView
     }
 
-    func renderCard(data: DashboardData, period: String, tagline: String? = nil, completion: @escaping (NSImage?) -> Void) {
+    func renderCard(data: DashboardData, period: String, accentColor: String = "orange", appearance: String = "system", tagline: String? = nil, completion: @escaping (NSImage?) -> Void) {
         let selectedTagline = tagline ?? ShareCardRenderer.taglines.randomElement()!
-        let html = generateCardHTML(data: data, period: period, tagline: selectedTagline)
+        let html = generateCardHTML(data: data, period: period, tagline: selectedTagline, accentColor: accentColor, appearance: appearance)
 
         guard let webView = offscreenWebView else {
             completion(nil)
@@ -62,7 +62,7 @@ final class ShareCardRenderer {
         }
     }
 
-    private func generateCardHTML(data: DashboardData, period: String, tagline: String) -> String {
+    private func generateCardHTML(data: DashboardData, period: String, tagline: String, accentColor: String, appearance: String) -> String {
         let isWeekly = period == "week"
         let totalSeconds = isWeekly ? data.weekTotal : data.todayTotal
         let prompts = isWeekly ? data.weekPrompts : data.todayPrompts
@@ -93,6 +93,45 @@ final class ShareCardRenderer {
             dateRange = formatter.string(from: Date())
         }
 
+        // Theme colors
+        let isLight = appearance == "light"
+        let accent: String
+        let bgGradient: String
+        let textColor: String
+        let heroColor: String
+        let subtitleColor: String
+        let statsColor: String
+        let taglineColor: String
+        let dateColor: String
+        let watermarkColor: String
+
+        if accentColor == "green" {
+            accent = isLight ? "#16a34a" : "#4ade80"
+        } else {
+            accent = isLight ? "#D4633E" : "#E8734A"
+        }
+
+        if isLight {
+            bgGradient = "linear-gradient(135deg, #ffffff 0%, #f5f5f5 50%, #fafafa 100%)"
+            textColor = "#1a1a1a"
+            heroColor = "#111"
+            subtitleColor = "#555"
+            statsColor = "#777"
+            taglineColor = "#999"
+            dateColor = "#999"
+            watermarkColor = "#ccc"
+        } else {
+            let tintEnd = accentColor == "green" ? "#0f1f0f" : "#1f0f0a"
+            bgGradient = "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, \(tintEnd) 100%)"
+            textColor = "#e5e5e5"
+            heroColor = "#fff"
+            subtitleColor = "#999"
+            statsColor = "#777"
+            taglineColor = "#555"
+            dateColor = "#555"
+            watermarkColor = "#333"
+        }
+
         return """
         <!DOCTYPE html>
         <html><head><meta charset="UTF-8"><style>
@@ -100,8 +139,8 @@ final class ShareCardRenderer {
           body {
             width: 400px; height: 500px;
             font-family: -apple-system, 'SF Mono', 'Menlo', monospace;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f1f0f 100%);
-            color: #e5e5e5;
+            background: \(bgGradient);
+            color: \(textColor);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -114,12 +153,12 @@ final class ShareCardRenderer {
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #4ade80;
+            color: \(accent);
             margin-bottom: 8px;
           }
           .tagline {
             font-size: 9px;
-            color: #555;
+            color: \(taglineColor);
             font-style: italic;
             max-width: 280px;
             margin: 0 auto 24px;
@@ -128,34 +167,34 @@ final class ShareCardRenderer {
           .hero {
             font-size: 56px;
             font-weight: 700;
-            color: #fff;
+            color: \(heroColor);
             letter-spacing: -3px;
             line-height: 1;
           }
           .subtitle {
             font-size: 14px;
-            color: #999;
+            color: \(subtitleColor);
             margin-top: 8px;
             margin-bottom: 32px;
           }
           .stats {
             font-size: 11px;
-            color: #777;
+            color: \(statsColor);
             margin-bottom: 16px;
           }
           .grass {
             font-size: 12px;
-            color: #4ade80;
+            color: \(accent);
             font-style: italic;
             margin-bottom: 32px;
           }
           .date {
             font-size: 10px;
-            color: #555;
+            color: \(dateColor);
           }
           .watermark {
             font-size: 9px;
-            color: #333;
+            color: \(watermarkColor);
             margin-top: 12px;
           }
         </style></head><body>
@@ -167,7 +206,7 @@ final class ShareCardRenderer {
           <div class="stats">\(prompts) prompts &bull; avg \(avgText)/wait &bull; longest: \(longestText)</div>
           <div class="grass">\(grassEquivalent)</div>
           <div class="date">\(dateRange)</div>
-          <div class="watermark">claudeisthinking.com</div>
+          <div class="watermark">claude-is-thinking.vercel.app</div>
         </div>
         </body></html>
         """

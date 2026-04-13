@@ -15,8 +15,8 @@
   --text-tertiary: #777;
   --text-muted: #555;
   --text-heading: #fff;
-  --accent: #4ade80;
-  --accent-bg: #1a2a1a;
+  --accent: #E8734A;
+  --accent-bg: #2a1a15;
   --border: #2a2a2a;
   --border-light: #333;
   --danger: #f87171;
@@ -34,8 +34,8 @@
     --text-tertiary: #777;
     --text-muted: #999;
     --text-heading: #111;
-    --accent: #16a34a;
-    --accent-bg: #f0fdf4;
+    --accent: #D4633E;
+    --accent-bg: #FFF5F2;
     --border: #e5e5e5;
     --border-light: #d4d4d4;
     --danger: #dc2626;
@@ -53,13 +53,29 @@
   --text-tertiary: #777;
   --text-muted: #999;
   --text-heading: #111;
-  --accent: #16a34a;
-  --accent-bg: #f0fdf4;
+  --accent: #D4633E;
+  --accent-bg: #FFF5F2;
   --border: #e5e5e5;
   --border-light: #d4d4d4;
   --danger: #dc2626;
   --danger-bg: #fef2f2;
   --danger-border: #fecaca;
+}
+
+/* Green accent overrides */
+:root.green {
+  --accent: #4ade80;
+  --accent-bg: #1a2a1a;
+}
+@media (prefers-color-scheme: light) {
+  :root.green:not(.dark) {
+    --accent: #16a34a;
+    --accent-bg: #f0fdf4;
+  }
+}
+:root.green.light {
+  --accent: #16a34a;
+  --accent-bg: #f0fdf4;
 }
 
 body {
@@ -220,6 +236,17 @@ body {
       <button class="preset-btn" data-val="dark" onclick="setAppearance('dark')">Dark</button>
     </div>
   </div>
+  <div class="setting-row">
+    <div><div class="setting-name">Accent color</div></div>
+    <div class="preset-btns" id="accentBtns">
+      <button class="preset-btn selected" data-val="orange" onclick="setAccentColor('orange')" style="position:relative;">
+        <span style="color:#E8734A;">&#x25CF;</span> Claude Orange
+      </button>
+      <button class="preset-btn" data-val="green" onclick="setAccentColor('green')">
+        <span style="color:#4ade80;">&#x25CF;</span> Terminal Green
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="setting-group">
@@ -259,6 +286,7 @@ body {
 let grassEnabled = true;
 let grassThreshold = 180;
 let currentAppearance = 'system';
+let currentAccentColor = 'orange';
 
 window.updateSettings = function(jsonString) {
   try {
@@ -280,6 +308,11 @@ window.updateSettings = function(jsonString) {
       currentAppearance = s.appearance;
       applyAppearance(s.appearance);
       renderAppearanceBtns();
+    }
+    if (s.accentColor !== undefined) {
+      currentAccentColor = s.accentColor;
+      applyAccentColor(s.accentColor);
+      renderAccentBtns();
     }
   } catch(e) {}
 };
@@ -339,6 +372,25 @@ function toggleLogin() {
 
 function disableTracking() {
   window.webkit.messageHandlers.settings.postMessage({type: 'disableTracking'});
+}
+
+function setAccentColor(color) {
+  currentAccentColor = color;
+  applyAccentColor(color);
+  renderAccentBtns();
+  window.webkit.messageHandlers.settings.postMessage({type: 'setSetting', key: 'accent_color', value: color});
+}
+
+function applyAccentColor(color) {
+  const root = document.documentElement;
+  root.classList.remove('green');
+  if (color === 'green') root.classList.add('green');
+}
+
+function renderAccentBtns() {
+  document.querySelectorAll('#accentBtns .preset-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.val === currentAccentColor);
+  });
 }
 
 function reinstallHooks() {

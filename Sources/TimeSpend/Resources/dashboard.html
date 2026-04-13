@@ -17,9 +17,9 @@
     --text-tertiary: #777;
     --text-muted: #555;
     --text-heading: #fff;
-    --accent: #4ade80;
-    --accent-hover: #6ee7a0;
-    --accent-bg: #1a2a1a;
+    --accent: #E8734A;
+    --accent-hover: #ED8E6F;
+    --accent-bg: #2a1a15;
     --border: #2a2a2a;
     --border-light: #333;
     --danger: #f87171;
@@ -42,9 +42,9 @@
       --text-tertiary: #777;
       --text-muted: #999;
       --text-heading: #111;
-      --accent: #16a34a;
-      --accent-hover: #15803d;
-      --accent-bg: #f0fdf4;
+      --accent: #D4633E;
+      --accent-hover: #C05535;
+      --accent-bg: #FFF5F2;
       --border: #e5e5e5;
       --border-light: #d4d4d4;
       --danger: #dc2626;
@@ -67,9 +67,9 @@
     --text-tertiary: #777;
     --text-muted: #999;
     --text-heading: #111;
-    --accent: #16a34a;
-    --accent-hover: #15803d;
-    --accent-bg: #f0fdf4;
+    --accent: #D4633E;
+    --accent-hover: #C05535;
+    --accent-bg: #FFF5F2;
     --border: #e5e5e5;
     --border-light: #d4d4d4;
     --danger: #dc2626;
@@ -79,6 +79,25 @@
     --chart-bar-data: #c4c4c4;
     --chart-bar-hover: #a3a3a3;
     --tooltip-bg: #333;
+  }
+
+  /* Green accent overrides */
+  :root.green {
+    --accent: #4ade80;
+    --accent-hover: #6ee7a0;
+    --accent-bg: #1a2a1a;
+  }
+  @media (prefers-color-scheme: light) {
+    :root.green:not(.dark) {
+      --accent: #16a34a;
+      --accent-hover: #15803d;
+      --accent-bg: #f0fdf4;
+    }
+  }
+  :root.green.light {
+    --accent: #16a34a;
+    --accent-hover: #15803d;
+    --accent-bg: #f0fdf4;
   }
 
   body {
@@ -114,6 +133,16 @@
     line-height: 1;
   }
   .settings-gear:hover { color: var(--text-secondary); }
+  .claude-star { color: var(--accent); margin-right: 4px; }
+  .ripple { display: inline-block; color: var(--accent); }
+  .ripple span {
+    display: inline-block;
+    animation: ripple 2s ease-in-out infinite;
+  }
+  @keyframes ripple {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
 
   /* Error banner */
   .error-banner {
@@ -488,7 +517,7 @@
   <div id="dashboard" style="display:none;">
     <!-- Header -->
     <div class="header">
-      <span class="app-name">Claude is Thinking?</span>
+      <span class="app-name">Claude is <span class="ripple"><span style="animation-delay:0s">T</span><span style="animation-delay:0.08s">h</span><span style="animation-delay:0.16s">i</span><span style="animation-delay:0.24s">n</span><span style="animation-delay:0.32s">k</span><span style="animation-delay:0.4s">i</span><span style="animation-delay:0.48s">n</span><span style="animation-delay:0.56s">g</span><span style="animation-delay:0.64s">?</span></span></span>
       <button class="settings-gear" onclick="showSettings()">&#9881;</button>
     </div>
 
@@ -567,7 +596,7 @@
 
     <!-- Footer -->
     <div class="footer">
-      <span id="versionLabel">v1.1.0</span>
+      <span id="versionLabel">v1.1.1</span>
       <button onclick="quitApp()">Quit Claude is Thinking?</button>
     </div>
   </div>
@@ -675,6 +704,9 @@ window.updateSettings = function(jsonString) {
     }
     if (s.appearance !== undefined) {
       applyAppearance(s.appearance);
+    }
+    if (s.accentColor !== undefined) {
+      applyAccentColor(s.accentColor);
     }
     if (s.hooksInstalled !== undefined) {
       document.getElementById('hookStatus').textContent = s.hooksInstalled ? 'Active' : 'Not installed';
@@ -974,6 +1006,13 @@ function applyAppearance(mode) {
   if (mode === 'light') root.classList.add('light');
   else if (mode === 'dark') root.classList.add('dark');
   // 'system' = no class, uses prefers-color-scheme
+}
+
+// Accent color
+function applyAccentColor(color) {
+  const root = document.documentElement;
+  root.classList.remove('green');
+  if (color === 'green') root.classList.add('green');
 }
 
 // Formatters

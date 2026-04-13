@@ -284,6 +284,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate {
         // Push share data after a short delay for WebView to load
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             bridge.pushShareData()
+            bridge.pushAccentColor()
+            bridge.pushAppearance()
         }
 
         let window = NSWindow(
