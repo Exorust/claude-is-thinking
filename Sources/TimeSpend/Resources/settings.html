@@ -5,10 +5,67 @@
 <meta name="viewport" content="width=device-width">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #1a1a1a;
+  --bg-secondary: #222;
+  --bg-tertiary: #333;
+  --text: #e5e5e5;
+  --text-secondary: #999;
+  --text-tertiary: #777;
+  --text-muted: #555;
+  --text-heading: #fff;
+  --accent: #4ade80;
+  --accent-bg: #1a2a1a;
+  --border: #2a2a2a;
+  --border-light: #333;
+  --danger: #f87171;
+  --danger-bg: #2a1a1a;
+  --danger-border: #4a2a2a;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not(.dark) {
+    --bg: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #e5e5e5;
+    --text: #1a1a1a;
+    --text-secondary: #555;
+    --text-tertiary: #777;
+    --text-muted: #999;
+    --text-heading: #111;
+    --accent: #16a34a;
+    --accent-bg: #f0fdf4;
+    --border: #e5e5e5;
+    --border-light: #d4d4d4;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+  }
+}
+
+:root.light {
+  --bg: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e5e5e5;
+  --text: #1a1a1a;
+  --text-secondary: #555;
+  --text-tertiary: #777;
+  --text-muted: #999;
+  --text-heading: #111;
+  --accent: #16a34a;
+  --accent-bg: #f0fdf4;
+  --border: #e5e5e5;
+  --border-light: #d4d4d4;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #1a1a1a;
-  color: #e5e5e5;
+  background: var(--bg);
+  color: var(--text);
   -webkit-user-select: none;
   padding: 32px;
 }
@@ -16,7 +73,7 @@ body {
 .title {
   font-size: 22px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-heading);
   margin-bottom: 32px;
 }
 
@@ -25,7 +82,7 @@ body {
 }
 .setting-group-label {
   font-size: 11px;
-  color: #777;
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 12px;
@@ -35,22 +92,22 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--border);
 }
 .setting-row:last-child { border-bottom: none; }
 .setting-name {
   font-size: 15px;
-  color: #e5e5e5;
+  color: var(--text);
 }
 .setting-desc {
   font-size: 12px;
-  color: #666;
+  color: var(--text-muted);
   margin-top: 4px;
 }
 
 .toggle {
   width: 44px; height: 24px;
-  background: #333;
+  background: var(--bg-tertiary);
   border-radius: 12px;
   position: relative;
   cursor: pointer;
@@ -58,7 +115,7 @@ body {
   padding: 0;
   flex-shrink: 0;
 }
-.toggle.on { background: #4ade80; }
+.toggle.on { background: var(--accent); }
 .toggle::after {
   content: '';
   width: 20px; height: 20px;
@@ -73,42 +130,58 @@ body {
 .preset-btns { display: flex; gap: 6px; }
 .preset-btn {
   padding: 6px 14px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background: #222;
-  color: #777;
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
   font-family: inherit;
   font-size: 13px;
   cursor: pointer;
 }
-.preset-btn.selected { border-color: #4ade80; color: #4ade80; background: #1a2a1a; }
-.preset-btn:hover { border-color: #555; }
+.preset-btn.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+.preset-btn:hover { border-color: var(--text-muted); }
 
 .danger-btn {
   width: 100%;
   padding: 12px;
-  border: 1px solid #4a2a2a;
+  border: 1px solid var(--danger-border);
   border-radius: 8px;
   background: transparent;
-  color: #f87171;
+  color: var(--danger);
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
   margin-top: 16px;
 }
-.danger-btn:hover { background: #2a1a1a; }
+.danger-btn:hover { background: var(--danger-bg); }
 
 .status-badge {
   font-size: 13px;
   padding: 4px 10px;
   border-radius: 4px;
 }
-.status-badge.active { color: #4ade80; background: #1a2a1a; }
-.status-badge.inactive { color: #f87171; background: #2a1a1a; }
+.status-badge.active { color: var(--accent); background: var(--accent-bg); }
+.status-badge.inactive { color: var(--danger); background: var(--danger-bg); }
+
+.hook-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.reinstall-btn {
+  font-size: 18px;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+.reinstall-btn:hover { color: var(--accent); }
 
 .version {
   font-size: 11px;
-  color: #555;
+  color: var(--text-muted);
   text-align: center;
   margin-top: 24px;
 }
@@ -128,12 +201,23 @@ body {
     <button class="toggle on" id="grassToggle" onclick="toggleGrass()"></button>
   </div>
   <div class="setting-row" id="thresholdRow">
-    <span class="setting-name" style="color:#777;">Threshold</span>
+    <span class="setting-name" style="color:var(--text-tertiary);">Threshold</span>
     <div class="preset-btns" id="thresholdBtns">
-      <button class="preset-btn" data-val="900" onclick="setThreshold(900)">15m</button>
-      <button class="preset-btn selected" data-val="1800" onclick="setThreshold(1800)">30m</button>
-      <button class="preset-btn" data-val="2700" onclick="setThreshold(2700)">45m</button>
-      <button class="preset-btn" data-val="3600" onclick="setThreshold(3600)">1h</button>
+      <button class="preset-btn" data-val="120" onclick="setThreshold(120)">2m</button>
+      <button class="preset-btn selected" data-val="180" onclick="setThreshold(180)">3m</button>
+      <button class="preset-btn" data-val="300" onclick="setThreshold(300)">5m</button>
+    </div>
+  </div>
+</div>
+
+<div class="setting-group">
+  <div class="setting-group-label">Appearance</div>
+  <div class="setting-row">
+    <div><div class="setting-name">Theme</div></div>
+    <div class="preset-btns" id="appearanceBtns">
+      <button class="preset-btn selected" data-val="system" onclick="setAppearance('system')">System</button>
+      <button class="preset-btn" data-val="light" onclick="setAppearance('light')">Light</button>
+      <button class="preset-btn" data-val="dark" onclick="setAppearance('dark')">Dark</button>
     </div>
   </div>
 </div>
@@ -153,24 +237,28 @@ body {
       <div class="setting-name">Hooks installed</div>
       <div class="setting-desc">Tracking Claude Code via ~/.claude/settings.json</div>
     </div>
-    <span class="status-badge active" id="hookStatus">Active</span>
+    <div class="hook-actions">
+      <span class="status-badge active" id="hookStatus">Active</span>
+      <button class="reinstall-btn" onclick="reinstallHooks()" title="Reinstall hooks">&#x21BB;</button>
+    </div>
   </div>
   <div class="setting-row">
     <div>
       <div class="setting-name">Data retention</div>
       <div class="setting-desc">Sessions older than 90 days are automatically deleted</div>
     </div>
-    <span style="color:#777; font-size:13px;">90 days</span>
+    <span style="color:var(--text-tertiary); font-size:13px;">90 days</span>
   </div>
 </div>
 
 <button class="danger-btn" onclick="disableTracking()">Disable Tracking &amp; Remove Hooks</button>
 
-<div class="version">Claude is Thinking? v1.0</div>
+<div class="version">Claude is Thinking? v1.0 | claudeisthinking.com</div>
 
 <script>
 let grassEnabled = true;
-let grassThreshold = 1800;
+let grassThreshold = 180;
+let currentAppearance = 'system';
 
 window.updateSettings = function(jsonString) {
   try {
@@ -188,6 +276,11 @@ window.updateSettings = function(jsonString) {
       el.textContent = s.hooksInstalled ? 'Active' : 'Not installed';
       el.className = 'status-badge ' + (s.hooksInstalled ? 'active' : 'inactive');
     }
+    if (s.appearance !== undefined) {
+      currentAppearance = s.appearance;
+      applyAppearance(s.appearance);
+      renderAppearanceBtns();
+    }
   } catch(e) {}
 };
 
@@ -199,6 +292,26 @@ function renderSettings() {
   document.querySelectorAll('#thresholdBtns .preset-btn').forEach(btn => {
     btn.classList.toggle('selected', parseInt(btn.dataset.val) === grassThreshold);
   });
+}
+
+function renderAppearanceBtns() {
+  document.querySelectorAll('#appearanceBtns .preset-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.val === currentAppearance);
+  });
+}
+
+function applyAppearance(mode) {
+  const root = document.documentElement;
+  root.classList.remove('light', 'dark');
+  if (mode === 'light') root.classList.add('light');
+  else if (mode === 'dark') root.classList.add('dark');
+}
+
+function setAppearance(mode) {
+  currentAppearance = mode;
+  applyAppearance(mode);
+  renderAppearanceBtns();
+  window.webkit.messageHandlers.settings.postMessage({type: 'setSetting', key: 'appearance', value: mode});
 }
 
 function toggleGrass() {
@@ -226,6 +339,10 @@ function toggleLogin() {
 
 function disableTracking() {
   window.webkit.messageHandlers.settings.postMessage({type: 'disableTracking'});
+}
+
+function reinstallHooks() {
+  window.webkit.messageHandlers.settings.postMessage({type: 'reinstallHooks'});
 }
 </script>
 </body>

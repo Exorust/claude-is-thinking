@@ -50,8 +50,8 @@ final class GrassNotifier {
     }
 
     func checkThreshold() {
-        let thresholdStr = dataStore.getSetting(.grassThreshold) ?? "1800"
-        let threshold = Int(thresholdStr) ?? 1800
+        let thresholdStr = dataStore.getSetting(.grassThreshold) ?? "180"
+        let threshold = Int(thresholdStr) ?? 180
 
         // 0 means disabled
         guard threshold > 0 else { return }

@@ -160,14 +160,14 @@ final class ShareCardRenderer {
           }
         </style></head><body>
         <div class="card">
-          <div class="brand">TimeSpend</div>
+          <div class="brand">Claude is Thinking?</div>
           <div class="tagline">\(tagline.replacingOccurrences(of: "\"", with: "&quot;"))</div>
           <div class="hero">\(heroText)</div>
           <div class="subtitle">waiting for Claude Code \(periodLabel)</div>
           <div class="stats">\(prompts) prompts &bull; avg \(avgText)/wait &bull; longest: \(longestText)</div>
           <div class="grass">\(grassEquivalent)</div>
           <div class="date">\(dateRange)</div>
-          <div class="watermark">timespend.dev</div>
+          <div class="watermark">claudeisthinking.com</div>
         </div>
         </body></html>
         """

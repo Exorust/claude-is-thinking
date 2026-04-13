@@ -139,6 +139,7 @@ final class DataStore {
                     chartData.append(DashboardData.DayData(
                         label: isToday ? "Today" : dayFormatter.string(from: date),
                         seconds: dayTotal,
+                        sessionCount: daySessions.count,
                         isToday: isToday
                     ))
                 }

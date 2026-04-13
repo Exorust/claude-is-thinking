@@ -356,7 +356,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "TimeSpend Settings"
+        window.title = "Claude is Thinking? Settings"
         window.contentView = wv
         window.center()
         window.isReleasedWhenClosed = false

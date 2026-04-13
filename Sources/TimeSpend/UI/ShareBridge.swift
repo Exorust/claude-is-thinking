@@ -90,13 +90,26 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
     }
 
     private func copyImageToClipboard(_ image: NSImage) {
-        guard let tiffData = image.tiffRepresentation,
-              let bitmapRep = NSBitmapImageRep(data: tiffData),
-              let pngData = bitmapRep.representation(using: .png, properties: [:]) else { return }
+        guard let pngData = pngData(from: image) else { return }
 
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setData(pngData, forType: .png)
+    }
+
+    private func saveImageToDownloads(_ image: NSImage, period: String) {
+        guard let pngData = pngData(from: image) else { return }
+
+        let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
+        let filename = "claude-is-thinking-\(period).png"
+        let url = downloads.appendingPathComponent(filename)
+        try? pngData.write(to: url)
+    }
+
+    private func pngData(from image: NSImage) -> Data? {
+        guard let tiffData = image.tiffRepresentation,
+              let bitmapRep = NSBitmapImageRep(data: tiffData) else { return nil }
+        return bitmapRep.representation(using: .png, properties: [:])
     }
 
     private func copyForShare(period: String) {
@@ -106,6 +119,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         shareCardRenderer?.renderCard(data: data, period: period) { [weak self] image in
             guard let self = self, let image = image else { return }
             self.copyImageToClipboard(image)
+            self.saveImageToDownloads(image, period: period)
 
             // Notify JS that image is on clipboard
             DispatchQueue.main.async {
@@ -137,6 +151,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         shareCardRenderer?.renderCard(data: data, period: period) { [weak self] image in
             guard let self = self, let image = image else { return }
             self.copyImageToClipboard(image)
+            self.saveImageToDownloads(image, period: period)
         }
     }
 
@@ -147,7 +162,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
         shareCardRenderer?.renderCard(data: data, period: period) { image in
             guard let image = image else { return }
 
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("timespend-card.png")
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("claude-is-thinking-card.png")
             if let tiffData = image.tiffRepresentation,
                let bitmapRep = NSBitmapImageRep(data: tiffData),
                let pngData = bitmapRep.representation(using: .png, properties: [:]) {
@@ -176,7 +191,7 @@ final class ShareBridge: NSObject, WKScriptMessageHandler {
             DispatchQueue.main.async {
                 let savePanel = NSSavePanel()
                 savePanel.allowedContentTypes = [.png]
-                savePanel.nameFieldStringValue = "timespend-\(period).png"
+                savePanel.nameFieldStringValue = "claude-is-thinking-\(period).png"
                 savePanel.title = "Save Share Card"
 
                 if savePanel.runModal() == .OK, let url = savePanel.url {

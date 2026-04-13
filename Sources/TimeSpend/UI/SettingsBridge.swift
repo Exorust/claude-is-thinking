@@ -16,14 +16,16 @@ final class SettingsBridge: NSObject, WKScriptMessageHandler {
     }
 
     func pushSettings() {
-        let grassThreshold = Int(dataStore.getSetting(.grassThreshold) ?? "1800") ?? 1800
+        let grassThreshold = Int(dataStore.getSetting(.grassThreshold) ?? "180") ?? 180
         let launchAtLogin = dataStore.getSetting(.launchAtLogin) == "true"
         let hooksInstalled = HookInstaller().isInstalled
+        let appearance = dataStore.getSetting(.appearance) ?? "system"
 
         let settings: [String: Any] = [
             "grassThreshold": grassThreshold,
             "launchAtLogin": launchAtLogin,
-            "hooksInstalled": hooksInstalled
+            "hooksInstalled": hooksInstalled,
+            "appearance": appearance
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: settings),
@@ -52,8 +54,24 @@ final class SettingsBridge: NSObject, WKScriptMessageHandler {
         case "disableTracking":
             onDisableTracking?()
 
+        case "reinstallHooks":
+            handleReinstallHooks()
+
         default:
             break
+        }
+    }
+
+    private func handleReinstallHooks() {
+        let installer = HookInstaller()
+        do {
+            try installer.uninstall()
+            try installer.install()
+            dataStore.setSetting(.hooksInstalled, value: "true")
+            onSettingsChanged?()
+            pushSettings()
+        } catch {
+            print("[TimeSpend] Hook reinstall failed: \(error)")
         }
     }
 }

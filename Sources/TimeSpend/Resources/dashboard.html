@@ -6,16 +6,91 @@
 <title>Claude is Thinking?</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1a1a1a;
+    --bg-secondary: #222;
+    --bg-tertiary: #333;
+    --bg-overlay: #1a1a1a;
+    --text: #e5e5e5;
+    --text-secondary: #999;
+    --text-tertiary: #777;
+    --text-muted: #555;
+    --text-heading: #fff;
+    --accent: #4ade80;
+    --accent-hover: #6ee7a0;
+    --accent-bg: #1a2a1a;
+    --border: #2a2a2a;
+    --border-light: #333;
+    --danger: #f87171;
+    --danger-bg: #2a1a1a;
+    --danger-border: #4a2a2a;
+    --chart-bar: #333;
+    --chart-bar-data: #444;
+    --chart-bar-hover: #555;
+    --tooltip-bg: #333;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not(.dark) {
+      --bg: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-tertiary: #e5e5e5;
+      --bg-overlay: #ffffff;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --text-tertiary: #777;
+      --text-muted: #999;
+      --text-heading: #111;
+      --accent: #16a34a;
+      --accent-hover: #15803d;
+      --accent-bg: #f0fdf4;
+      --border: #e5e5e5;
+      --border-light: #d4d4d4;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --chart-bar: #e5e5e5;
+      --chart-bar-data: #c4c4c4;
+      --chart-bar-hover: #a3a3a3;
+      --tooltip-bg: #333;
+    }
+  }
+
+  :root.light {
+    --bg: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #e5e5e5;
+    --bg-overlay: #ffffff;
+    --text: #1a1a1a;
+    --text-secondary: #555;
+    --text-tertiary: #777;
+    --text-muted: #999;
+    --text-heading: #111;
+    --accent: #16a34a;
+    --accent-hover: #15803d;
+    --accent-bg: #f0fdf4;
+    --border: #e5e5e5;
+    --border-light: #d4d4d4;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --chart-bar: #e5e5e5;
+    --chart-bar-data: #c4c4c4;
+    --chart-bar-hover: #a3a3a3;
+    --tooltip-bg: #333;
+  }
+
   body {
     font-family: -apple-system, 'SF Mono', 'Menlo', monospace;
-    background: #1a1a1a;
-    color: #e5e5e5;
+    background: var(--bg);
+    color: var(--text);
     -webkit-user-select: none;
     user-select: none;
     overflow: hidden;
   }
 
-  .container { padding: 16px; max-height: 640px; overflow: hidden; }
+  .container { padding: 16px; max-height: 640px; overflow-y: auto; }
 
   /* Header */
   .header {
@@ -27,23 +102,23 @@
   .app-name {
     font-size: 16px;
     font-weight: 600;
-    color: #e5e5e5;
+    color: var(--text);
   }
   .settings-gear {
     font-size: 24px;
-    color: #777;
+    color: var(--text-tertiary);
     cursor: pointer;
     background: none;
     border: none;
     padding: 4px;
     line-height: 1;
   }
-  .settings-gear:hover { color: #999; }
+  .settings-gear:hover { color: var(--text-secondary); }
 
   /* Error banner */
   .error-banner {
-    background: #2a1a1a;
-    border: 1px solid #4a2a2a;
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
     border-radius: 8px;
     padding: 8px 16px;
     margin-bottom: 16px;
@@ -53,8 +128,8 @@
     font-size: 11px;
   }
   .error-banner.visible { display: flex; }
-  .error-banner .msg { color: #f87171; }
-  .error-banner .fix-link { color: #4ade80; cursor: pointer; text-decoration: underline; background:none; border:none; font:inherit; }
+  .error-banner .msg { color: var(--danger); }
+  .error-banner .fix-link { color: var(--accent); cursor: pointer; text-decoration: underline; background:none; border:none; font:inherit; }
 
   /* Hero */
   .hero {
@@ -65,31 +140,31 @@
   .hero-number {
     font-size: 48px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-heading);
     letter-spacing: -2px;
     line-height: 1;
     font-family: 'SF Mono', 'Menlo', monospace;
     transition: color 0.2s;
   }
-  .hero-number.active { color: #4ade80; }
+  .hero-number.active { color: var(--accent); }
   .hero-label {
     font-size: 11px;
-    color: #999;
+    color: var(--text-secondary);
     margin-top: 4px;
   }
   .hero-sublabel {
     font-size: 11px;
-    color: #4ade80;
+    color: var(--accent);
     margin-top: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
   }
-  .hero-sublabel.idle { color: #777; }
+  .hero-sublabel.idle { color: var(--text-tertiary); }
   .pulse-dot {
     width: 6px; height: 6px;
-    background: #4ade80;
+    background: var(--accent);
     border-radius: 50%;
     display: inline-block;
   }
@@ -100,7 +175,7 @@
   }
   .hero-toggle-hint {
     font-size: 10px;
-    color: #555;
+    color: var(--text-muted);
     margin-top: 4px;
   }
 
@@ -113,13 +188,13 @@
   }
   .chart-title {
     font-size: 10px;
-    color: #777;
+    color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
   .chart-total {
     font-size: 11px;
-    color: #999;
+    color: var(--text-secondary);
     font-weight: 600;
   }
   .chart {
@@ -140,25 +215,25 @@
   }
   .chart-bar {
     width: 28px;
-    background: #333;
+    background: var(--chart-bar);
     border-radius: 4px 4px 0 0;
     min-height: 4px;
     cursor: pointer;
     transition: background 0.15s;
   }
-  .chart-bar.has-data { background: #444; }
-  .chart-bar.has-data:hover { background: #555; }
-  .chart-bar.today { background: #4ade80; }
-  .chart-bar.today:hover { background: #6ee7a0; }
+  .chart-bar.has-data { background: var(--chart-bar-data); }
+  .chart-bar.has-data:hover { background: var(--chart-bar-hover); }
+  .chart-bar.today { background: var(--accent); }
+  .chart-bar.today:hover { background: var(--accent-hover); }
   .chart-label {
     font-size: 10px;
-    color: #555;
+    color: var(--text-muted);
     margin-top: 4px;
   }
   .chart-tooltip {
     position: absolute;
     top: -24px;
-    background: #333;
+    background: var(--tooltip-bg);
     color: #fff;
     font-size: 10px;
     padding: 2px 8px;
@@ -174,30 +249,30 @@
     display: flex;
     justify-content: space-between;
     padding: 8px 0;
-    border-top: 1px solid #2a2a2a;
-    border-bottom: 1px solid #2a2a2a;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     margin-bottom: 16px;
   }
   .stat { text-align: center; flex: 1; }
-  .stat-value { font-size: 16px; font-weight: 600; color: #fff; }
-  .stat-label { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-  .stat-period { font-size: 10px; color: #555; }
+  .stat-value { font-size: 16px; font-weight: 600; color: var(--text-heading); }
+  .stat-label { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .stat-period { font-size: 10px; color: var(--text-muted); }
 
   /* Sessions */
   .sessions { margin-bottom: 16px; max-height: 130px; overflow: hidden; }
-  .sessions-header { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .sessions-header { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
   .session-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 11px; }
-  .session-time { color: #555; }
-  .session-duration { color: #999; font-weight: 600; }
-  .session-duration.long { color: #f87171; }
-  .session-duration.active-session { color: #4ade80; }
+  .session-time { color: var(--text-muted); }
+  .session-duration { color: var(--text-secondary); font-weight: 600; }
+  .session-duration.long { color: var(--danger); }
+  .session-duration.active-session { color: var(--accent); }
 
   /* Share button */
   .share-btn {
     width: 100%;
     padding: 8px;
-    background: #4ade80;
-    color: #1a1a1a;
+    background: var(--accent);
+    color: var(--bg);
     border: none;
     border-radius: 8px;
     font-family: inherit;
@@ -206,9 +281,9 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-  .share-btn:hover { background: #6ee7a0; }
-  .share-btn:disabled { background: #333; color: #555; cursor: default; }
-  .share-btn.copied { background: #333; color: #4ade80; }
+  .share-btn:hover { background: var(--accent-hover); }
+  .share-btn:disabled { background: var(--bg-tertiary); color: var(--text-muted); cursor: default; }
+  .share-btn.copied { background: var(--bg-tertiary); color: var(--accent); }
 
   /* Footer */
   .footer {
@@ -216,24 +291,24 @@
     justify-content: space-between;
     margin-top: 8px;
     font-size: 10px;
-    color: #555;
+    color: var(--text-muted);
   }
   .footer button {
-    color: #555;
+    color: var(--text-muted);
     background: none;
     border: none;
     font: inherit;
     cursor: pointer;
     padding: 0;
   }
-  .footer button:hover { color: #999; }
+  .footer button:hover { color: var(--text-secondary); }
 
   /* Settings overlay */
   .settings-overlay {
     display: none;
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: #1a1a1a;
+    background: var(--bg-overlay);
     z-index: 100;
     padding: 16px;
     overflow-y: auto;
@@ -241,7 +316,7 @@
   .settings-overlay.visible { display: block; }
   .settings-back {
     font-size: 11px;
-    color: #4ade80;
+    color: var(--accent);
     cursor: pointer;
     background: none;
     border: none;
@@ -249,22 +324,22 @@
     margin-bottom: 16px;
     display: inline-block;
   }
-  .settings-title { font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 16px; }
+  .settings-title { font-size: 16px; color: var(--text-heading); font-weight: 600; margin-bottom: 16px; }
   .setting-group { margin-bottom: 16px; }
-  .setting-group-label { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .setting-group-label { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
   .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
-  .setting-name { font-size: 13px; color: #e5e5e5; }
-  .setting-desc { font-size: 10px; color: #555; margin-top: 4px; }
+  .setting-name { font-size: 13px; color: var(--text); }
+  .setting-desc { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
   .toggle {
     width: 36px; height: 20px;
-    background: #333;
+    background: var(--bg-tertiary);
     border-radius: 10px;
     position: relative;
     cursor: pointer;
     border: none;
     padding: 0;
   }
-  .toggle.on { background: #4ade80; }
+  .toggle.on { background: var(--accent); }
   .toggle::after {
     content: '';
     width: 16px; height: 16px;
@@ -278,22 +353,22 @@
   .preset-btns { display: flex; gap: 4px; }
   .preset-btn {
     padding: 4px 8px;
-    border: 1px solid #333;
+    border: 1px solid var(--border-light);
     border-radius: 4px;
-    background: #222;
-    color: #777;
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
     font-family: inherit;
     font-size: 10px;
     cursor: pointer;
   }
-  .preset-btn.selected { border-color: #4ade80; color: #4ade80; background: #1a2a1a; }
+  .preset-btn.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
   .danger-btn {
     width: 100%;
     padding: 8px;
-    border: 1px solid #4a2a2a;
+    border: 1px solid var(--danger-border);
     border-radius: 8px;
     background: transparent;
-    color: #f87171;
+    color: var(--danger);
     font-family: inherit;
     font-size: 11px;
     cursor: pointer;
@@ -306,13 +381,13 @@
     padding: 24px 16px;
   }
   .first-run-icon { font-size: 40px; margin-bottom: 16px; }
-  .first-run h3 { font-size: 16px; color: #fff; margin-bottom: 8px; font-weight: 600; }
-  .first-run p { font-size: 11px; color: #999; line-height: 1.6; margin-bottom: 16px; }
+  .first-run h3 { font-size: 16px; color: var(--text-heading); margin-bottom: 8px; font-weight: 600; }
+  .first-run p { font-size: 11px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
   .enable-btn {
     width: 100%;
     padding: 8px;
-    background: #4ade80;
-    color: #1a1a1a;
+    background: var(--accent);
+    color: var(--bg);
     border: none;
     border-radius: 8px;
     font-family: inherit;
@@ -324,7 +399,7 @@
     display: block;
     margin-top: 8px;
     font-size: 10px;
-    color: #555;
+    color: var(--text-muted);
     text-decoration: none;
     cursor: pointer;
     background: none;
@@ -336,7 +411,7 @@
   .empty-hint {
     text-align: center;
     padding: 16px 0;
-    color: #555;
+    color: var(--text-muted);
     font-size: 11px;
     line-height: 1.6;
     display: none;
@@ -371,9 +446,9 @@
     </div>
 
     <!-- Hooks Not Installed Banner -->
-    <div class="error-banner" id="hooksNotInstalled" style="display:none; background:#1a2a1a; border-color:#2a4a2a;">
-      <span class="msg" style="color:#4ade80;">Hooks not installed. Tracking is off.</span>
-      <button class="fix-link" onclick="enableTracking()" style="color:#4ade80;">Install</button>
+    <div class="error-banner" id="hooksNotInstalled" style="display:none; background:var(--accent-bg); border-color:var(--accent);">
+      <span class="msg" style="color:var(--accent);">Hooks not installed. Tracking is off.</span>
+      <button class="fix-link" onclick="enableTracking()" style="color:var(--accent);">Install</button>
     </div>
 
     <!-- Hero -->
@@ -385,6 +460,13 @@
         <span id="heroStatus">no sessions yet</span>
       </div>
       <div class="hero-toggle-hint" id="toggleHint">tap to show weekly total</div>
+    </div>
+
+    <!-- Flip view toggle -->
+    <div style="text-align:center; margin-bottom:12px;">
+      <button id="flipBtn" onclick="toggleFlip()" style="background:none; border:none; font:inherit; font-size:10px; color:var(--text-muted); cursor:pointer; padding:4px 8px;">
+        This is too depressing. Show me the good stuff.
+      </button>
     </div>
 
     <!-- Chart -->
@@ -449,12 +531,11 @@
         <button class="toggle on" id="grassToggle" onclick="toggleGrass()"></button>
       </div>
       <div class="setting-row" id="thresholdRow">
-        <span class="setting-name" style="font-size:11px; color:#777;">Threshold</span>
+        <span class="setting-name" style="font-size:11px; color:var(--text-tertiary);">Threshold</span>
         <div class="preset-btns" id="thresholdBtns">
-          <button class="preset-btn" data-val="900" onclick="setThreshold(900)">15m</button>
-          <button class="preset-btn selected" data-val="1800" onclick="setThreshold(1800)">30m</button>
-          <button class="preset-btn" data-val="2700" onclick="setThreshold(2700)">45m</button>
-          <button class="preset-btn" data-val="3600" onclick="setThreshold(3600)">1h</button>
+          <button class="preset-btn" data-val="120" onclick="setThreshold(120)">2m</button>
+          <button class="preset-btn selected" data-val="180" onclick="setThreshold(180)">3m</button>
+          <button class="preset-btn" data-val="300" onclick="setThreshold(300)">5m</button>
         </div>
       </div>
     </div>
@@ -474,14 +555,14 @@
           <div class="setting-name">Hooks installed</div>
           <div class="setting-desc">Tracking Claude Code via ~/.claude/settings.json</div>
         </div>
-        <span style="color:#4ade80; font-size:11px;" id="hookStatus">Active</span>
+        <span style="color:var(--accent); font-size:11px;" id="hookStatus">Active</span>
       </div>
       <div class="setting-row">
         <div>
           <div class="setting-name">Data retention</div>
           <div class="setting-desc">Sessions older than 90 days are deleted</div>
         </div>
-        <span style="color:#777; font-size:11px;">90 days</span>
+        <span style="color:var(--text-tertiary); font-size:11px;">90 days</span>
       </div>
     </div>
 
@@ -495,7 +576,8 @@
 let currentView = 'today'; // 'today' or 'week'
 let dashboardData = null;
 let grassEnabled = true;
-let grassThreshold = 1800;
+let grassThreshold = 180;
+let flipped = false;
 
 // Swift bridge: called from Swift via evaluateJavaScript
 window.updateDashboard = function(jsonString) {
@@ -535,9 +617,12 @@ window.updateSettings = function(jsonString) {
     if (s.launchAtLogin !== undefined) {
       document.getElementById('loginToggle').classList.toggle('on', s.launchAtLogin);
     }
+    if (s.appearance !== undefined) {
+      applyAppearance(s.appearance);
+    }
     if (s.hooksInstalled !== undefined) {
       document.getElementById('hookStatus').textContent = s.hooksInstalled ? 'Active' : 'Not installed';
-      document.getElementById('hookStatus').style.color = s.hooksInstalled ? '#4ade80' : '#f87171';
+      document.getElementById('hookStatus').style.color = s.hooksInstalled ? 'var(--accent)' : 'var(--danger)';
       // Show/hide the "hooks not installed" banner on dashboard
       const banner = document.getElementById('hooksNotInstalled');
       if (banner) banner.style.display = s.hooksInstalled ? 'none' : 'flex';
@@ -570,7 +655,14 @@ function renderHero() {
   const heroStatus = document.getElementById('heroStatus');
   const toggleHint = document.getElementById('toggleHint');
 
-  if (currentView === 'today') {
+  if (flipped) {
+    const count = currentView === 'today' ? d.todayPrompts : d.weekPrompts;
+    heroNum.textContent = count;
+    heroLabel.textContent = currentView === 'today'
+      ? 'prompts completed with Claude Code today'
+      : 'prompts completed with Claude Code this week';
+    toggleHint.textContent = currentView === 'today' ? 'tap to show weekly total' : 'tap to show today';
+  } else if (currentView === 'today') {
     heroNum.textContent = formatDuration(d.todayTotal);
     heroLabel.textContent = 'waiting for Claude Code today';
     toggleHint.textContent = 'tap to show weekly total';
@@ -602,57 +694,101 @@ function renderHero() {
 function renderChart() {
   const container = document.getElementById('chartContainer');
   const totalEl = document.getElementById('chartTotal');
+  const titleEl = document.querySelector('.chart-title');
 
   const d = dashboardData;
-  totalEl.textContent = formatDuration(d.weekTotal) + ' total';
 
-  const maxSeconds = Math.max(...d.weeklyChart.map(x => x.seconds), 1);
-  container.innerHTML = '';
+  if (flipped) {
+    const totalPrompts = d.weeklyChart.reduce((sum, day) => sum + (day.sessionCount || 0), 0);
+    totalEl.textContent = totalPrompts + ' prompts total';
+    titleEl.textContent = 'This Week — Prompts';
 
-  d.weeklyChart.forEach(day => {
-    const group = document.createElement('div');
-    group.className = 'chart-bar-group';
+    const maxCount = Math.max(...d.weeklyChart.map(x => x.sessionCount || 0), 1);
+    container.innerHTML = '';
 
-    const tooltip = document.createElement('div');
-    tooltip.className = 'chart-tooltip';
-    tooltip.textContent = formatDuration(day.seconds);
-    group.appendChild(tooltip);
+    d.weeklyChart.forEach(day => {
+      const group = document.createElement('div');
+      group.className = 'chart-bar-group';
 
-    const bar = document.createElement('div');
-    bar.className = 'chart-bar';
-    const height = Math.max(4, (day.seconds / maxSeconds) * 50);
-    bar.style.height = height + 'px';
-    if (day.isToday) bar.classList.add('today');
-    else if (day.seconds > 0) bar.classList.add('has-data');
-    group.appendChild(bar);
+      const tooltip = document.createElement('div');
+      tooltip.className = 'chart-tooltip';
+      tooltip.textContent = (day.sessionCount || 0) + ' prompts';
+      group.appendChild(tooltip);
 
-    const label = document.createElement('span');
-    label.className = 'chart-label';
-    label.textContent = day.label;
-    group.appendChild(label);
+      const bar = document.createElement('div');
+      bar.className = 'chart-bar';
+      const count = day.sessionCount || 0;
+      const height = Math.max(4, (count / maxCount) * 50);
+      bar.style.height = height + 'px';
+      if (day.isToday) bar.classList.add('today');
+      else if (count > 0) bar.classList.add('has-data');
+      group.appendChild(bar);
 
-    container.appendChild(group);
-  });
+      const label = document.createElement('span');
+      label.className = 'chart-label';
+      label.textContent = day.label;
+      group.appendChild(label);
+
+      container.appendChild(group);
+    });
+  } else {
+    totalEl.textContent = formatDuration(d.weekTotal) + ' total';
+    titleEl.textContent = 'This Week';
+
+    const maxSeconds = Math.max(...d.weeklyChart.map(x => x.seconds), 1);
+    container.innerHTML = '';
+
+    d.weeklyChart.forEach(day => {
+      const group = document.createElement('div');
+      group.className = 'chart-bar-group';
+
+      const tooltip = document.createElement('div');
+      tooltip.className = 'chart-tooltip';
+      tooltip.textContent = formatDuration(day.seconds);
+      group.appendChild(tooltip);
+
+      const bar = document.createElement('div');
+      bar.className = 'chart-bar';
+      const height = Math.max(4, (day.seconds / maxSeconds) * 50);
+      bar.style.height = height + 'px';
+      if (day.isToday) bar.classList.add('today');
+      else if (day.seconds > 0) bar.classList.add('has-data');
+      group.appendChild(bar);
+
+      const label = document.createElement('span');
+      label.className = 'chart-label';
+      label.textContent = day.label;
+      group.appendChild(label);
+
+      container.appendChild(group);
+    });
+  }
 }
 
 function renderStats() {
   const d = dashboardData;
   const isToday = currentView === 'today';
   const period = isToday ? 'today' : 'this week';
+  const noData = (isToday ? d.todayPrompts : d.weekPrompts) === 0;
 
-  document.getElementById('statPrompts').textContent = isToday ? d.todayPrompts : d.weekPrompts;
-  document.getElementById('statAvg').textContent = formatShortDuration(isToday ? d.todayAvgWait : d.weekAvgWait);
-  document.getElementById('statLongest').textContent = formatShortDuration(isToday ? d.todayLongest : d.weekLongest);
+  if (flipped) {
+    document.getElementById('statPrompts').textContent = noData ? '--' : (isToday ? d.todayPrompts : d.weekPrompts);
+    document.getElementById('statAvg').textContent = noData ? '--' : formatShortDuration(isToday ? d.todayAvgWait : d.weekAvgWait);
+    document.getElementById('statLongest').textContent = noData ? '--' : formatShortDuration(isToday ? d.todayLongest : d.weekLongest);
+    document.querySelector('#statPrompts + .stat-label').textContent = 'Completed';
+    document.querySelector('#statAvg + .stat-label').textContent = 'Avg Response';
+    document.querySelector('#statLongest + .stat-label').textContent = 'Deepest Think';
+  } else {
+    document.getElementById('statPrompts').textContent = noData ? '--' : (isToday ? d.todayPrompts : d.weekPrompts);
+    document.getElementById('statAvg').textContent = noData ? '--' : formatShortDuration(isToday ? d.todayAvgWait : d.weekAvgWait);
+    document.getElementById('statLongest').textContent = noData ? '--' : formatShortDuration(isToday ? d.todayLongest : d.weekLongest);
+    document.querySelector('#statPrompts + .stat-label').textContent = 'Prompts';
+    document.querySelector('#statAvg + .stat-label').textContent = 'Avg Wait';
+    document.querySelector('#statLongest + .stat-label').textContent = 'Longest';
+  }
   document.getElementById('statPeriod1').textContent = period;
   document.getElementById('statPeriod2').textContent = period;
   document.getElementById('statPeriod3').textContent = period;
-
-  const noData = (isToday ? d.todayPrompts : d.weekPrompts) === 0;
-  if (noData) {
-    document.getElementById('statPrompts').textContent = '--';
-    document.getElementById('statAvg').textContent = '--';
-    document.getElementById('statLongest').textContent = '--';
-  }
 }
 
 function renderSessions() {
@@ -705,6 +841,14 @@ function toggleHeroView() {
   renderStats();
 }
 
+function toggleFlip() {
+  flipped = !flipped;
+  const btn = document.getElementById('flipBtn');
+  btn.textContent = flipped ? 'OK show me the damage.' : 'This is too depressing. Show me the good stuff.';
+  btn.style.color = flipped ? 'var(--accent)' : 'var(--text-muted)';
+  render();
+}
+
 function showSettings() {
   window.webkit.messageHandlers.action.postMessage({type: 'openSettings'});
 }
@@ -728,6 +872,7 @@ function disableTracking() {
 function fixTracking() {
   window.webkit.messageHandlers.action.postMessage({type: 'fixTracking'});
 }
+
 
 function toggleGrass() {
   grassEnabled = !grassEnabled;
@@ -758,6 +903,15 @@ function quitApp() {
 
 function showHowItWorks() {
   window.webkit.messageHandlers.action.postMessage({type: 'howItWorks'});
+}
+
+// Appearance
+function applyAppearance(mode) {
+  const root = document.documentElement;
+  root.classList.remove('light', 'dark');
+  if (mode === 'light') root.classList.add('light');
+  else if (mode === 'dark') root.classList.add('dark');
+  // 'system' = no class, uses prefers-color-scheme
 }
 
 // Formatters

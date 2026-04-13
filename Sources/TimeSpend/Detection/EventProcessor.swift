@@ -9,6 +9,10 @@ final class EventProcessor {
     private var fileHandle: FileHandle?
     private var dispatchSource: DispatchSourceFileSystemObject?
     private var lastReadOffset: UInt64 = 0
+    private var pendingBuffer: String = ""  // Holds incomplete trailing line
+
+    // Serial queue for thread-safe access to openSessions and file reading
+    private let processingQueue = DispatchQueue(label: "dev.timespend.eventprocessor")
 
     // Open sessions: session_id -> HookEvent (the prompt_start event)
     private var openSessions: [String: HookEvent] = [:]
@@ -18,8 +22,11 @@ final class EventProcessor {
 
     // Public: active session tracking for menu bar timer
     var activeSessionStartTime: Date? {
-        guard let oldest = openSessions.values.min(by: { $0.ts < $1.ts }) else { return nil }
-        return Date(timeIntervalSince1970: TimeInterval(oldest.ts))
+        // Read from processing queue for thread safety
+        return processingQueue.sync {
+            guard let oldest = openSessions.values.min(by: { $0.ts < $1.ts }) else { return nil }
+            return Date(timeIntervalSince1970: TimeInterval(oldest.ts))
+        }
     }
 
     private var eventsFilePath: String {
@@ -56,16 +63,32 @@ final class EventProcessor {
 
         fileHandle = handle
 
-        // Seek to end (only process new events)
-        handle.seekToEndOfFile()
-        lastReadOffset = handle.offsetInFile
+        // Restore persisted offset, or seek to end if none saved
+        if let savedOffset = dataStore.getSetting(.eventsFileOffset),
+           let offset = UInt64(savedOffset) {
+            // Validate offset is within file bounds
+            handle.seekToEndOfFile()
+            let fileSize = handle.offsetInFile
+            if offset <= fileSize {
+                handle.seek(toFileOffset: offset)
+                lastReadOffset = offset
+            } else {
+                // File was truncated/rotated since last run, start from beginning
+                handle.seek(toFileOffset: 0)
+                lastReadOffset = 0
+            }
+        } else {
+            // First launch: seek to end (don't replay historical events)
+            handle.seekToEndOfFile()
+            lastReadOffset = handle.offsetInFile
+        }
 
-        // Watch for writes using GCD dispatch source
+        // Watch for writes using GCD dispatch source on serial queue
         let fd = handle.fileDescriptor
         let source = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: fd,
             eventMask: [.write, .extend],
-            queue: DispatchQueue.global(qos: .utility)
+            queue: processingQueue
         )
 
         source.setEventHandler { [weak self] in
@@ -88,19 +111,41 @@ final class EventProcessor {
 
     // MARK: - Event Processing
 
+    /// Called on processingQueue (serial) — no concurrent access to openSessions or fileHandle
     private func readNewEvents() {
         guard let handle = fileHandle else { return }
 
         handle.seek(toFileOffset: lastReadOffset)
         let data = handle.readDataToEndOfFile()
-        lastReadOffset = handle.offsetInFile
 
         guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
 
-        let lines = text.components(separatedBy: "\n")
+        // Prepend any incomplete line from previous read
+        let fullText = pendingBuffer + text
+        pendingBuffer = ""
+
+        // Split into lines. If text doesn't end with newline, last element is incomplete.
+        let lines = fullText.components(separatedBy: "\n")
+
+        let hasTrailingNewline = fullText.hasSuffix("\n")
+        let completeLines: ArraySlice<String>
+
+        if hasTrailingNewline {
+            completeLines = lines[...]
+            // Advance offset to end of all data read
+            lastReadOffset = handle.offsetInFile
+        } else {
+            // Last line is incomplete — hold it back
+            completeLines = lines.dropLast()
+            pendingBuffer = lines.last ?? ""
+            // Advance offset only up to the last complete line
+            let completedBytes = fullText.count - pendingBuffer.count
+            lastReadOffset += UInt64(completedBytes)
+        }
+
         let decoder = JSONDecoder()
 
-        for line in lines {
+        for line in completeLines {
             let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else { continue }
 
@@ -112,8 +157,12 @@ final class EventProcessor {
 
             processEvent(event)
         }
+
+        // Persist offset periodically
+        persistOffset()
     }
 
+    /// Called on processingQueue (serial)
     private func processEvent(_ event: HookEvent) {
         switch event.event {
         case "prompt_start":
@@ -149,36 +198,42 @@ final class EventProcessor {
         }
     }
 
+    private func persistOffset() {
+        dataStore.setSetting(.eventsFileOffset, value: String(lastReadOffset))
+    }
+
     // MARK: - Orphan Detection
 
     func checkOrphans() {
+        processingQueue.async { [weak self] in
+            self?.checkOrphansOnQueue()
+        }
+    }
+
+    /// Called on processingQueue (serial)
+    private func checkOrphansOnQueue() {
         guard !orphanCheckPaused else { return }
 
         let now = Date()
         var closedIds: [String] = []
 
         for (sessionId, event) in openSessions {
-            let age = now.timeIntervalSince1970 - TimeInterval(event.ts)
-
             // Check if PID is still alive
             let pidAlive = kill(Int32(event.pid), 0) == 0
 
             if !pidAlive {
-                // PID is dead, close the session at current time
+                // PID is dead, close the session
                 closedIds.append(sessionId)
                 closeOrphanSession(event, endTs: Int(now.timeIntervalSince1970))
-            } else if age > 900 {
-                // PID alive but session > 15 min, check pid_start for recycling
+            } else {
+                // PID alive — check if it was recycled (different process now using same PID)
                 let currentPidStart = getProcessStartTime(pid: event.pid)
-                if currentPidStart != event.pidStart {
-                    // PID was recycled
-                    closedIds.append(sessionId)
-                    closeOrphanSession(event, endTs: Int(now.timeIntervalSince1970))
-                } else {
-                    // Genuine long session, close as "incomplete"
+                if currentPidStart != 0 && event.pidStart != 0 && currentPidStart != event.pidStart {
+                    // PID was recycled — different process
                     closedIds.append(sessionId)
                     closeOrphanSession(event, endTs: Int(now.timeIntervalSince1970))
                 }
+                // Otherwise: PID alive with same start time = genuine long session, keep it open
             }
         }
 
@@ -225,6 +280,7 @@ final class EventProcessor {
                 return 0
             }
 
+            // Use fixed locale to avoid locale-dependent date parsing issues
             let formatter = DateFormatter()
             formatter.dateFormat = "EEE MMM dd HH:mm:ss yyyy"
             formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -249,15 +305,28 @@ final class EventProcessor {
     // MARK: - Events File Maintenance
 
     func rotateEventsFileIfNeeded() {
+        processingQueue.async { [weak self] in
+            self?.rotateOnQueue()
+        }
+    }
+
+    /// Called on processingQueue (serial)
+    private func rotateOnQueue() {
         guard let attrs = try? FileManager.default.attributesOfItem(atPath: eventsFilePath),
               let size = attrs[.size] as? UInt64 else { return }
 
         // Rotate at 1MB
         if size > 1_000_000 {
-            // Stop watching, truncate, restart
             stopWatching()
-            try? "".write(toFile: eventsFilePath, atomically: true, encoding: .utf8)
+            // Rename old file instead of truncating (preserves data for debugging)
+            let archivePath = eventsFilePath + ".old"
+            try? FileManager.default.removeItem(atPath: archivePath)
+            try? FileManager.default.moveItem(atPath: eventsFilePath, toPath: archivePath)
+            // Create fresh file
+            FileManager.default.createFile(atPath: eventsFilePath, contents: nil)
             lastReadOffset = 0
+            pendingBuffer = ""
+            persistOffset()
             startWatching()
         }
     }

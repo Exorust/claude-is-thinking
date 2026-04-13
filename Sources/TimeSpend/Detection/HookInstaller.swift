@@ -91,22 +91,38 @@ final class HookInstaller {
     private func writeHookScript() throws {
         let script = """
         #!/bin/bash
-        # TimeSpend hook script - writes events to JSONL for tracking Claude Code wait time
+        # Claude is Thinking? hook script - writes events to JSONL for tracking Claude Code wait time
         # Called by Claude Code hooks. Arg 1: event type (prompt_start | response_end)
 
         EVENTS_DIR="$HOME/.timespend"
         EVENTS_FILE="$EVENTS_DIR/events.jsonl"
+        LOCK_FILE="$EVENTS_DIR/events.lock"
         EVENT_TYPE="${1:-unknown}"
-        SESSION_ID="${CLAUDE_SESSION_ID:-$$}"
-        PID=$$
         TS=$(date +%s)
 
-        PID_START=$(ps -o lstart= -p $PPID 2>/dev/null | xargs -I{} date -j -f "%c" "{}" "+%s" 2>/dev/null || echo "0")
+        STDIN_JSON=$(cat)
+        SESSION_ID=""
+        if [ -n "$STDIN_JSON" ]; then
+            SESSION_ID=$(echo "$STDIN_JSON" | grep -o '"session_id"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"session_id"[[:space:]]*:[[:space:]]*"//;s/"$//')
+        fi
+        if [ -z "$SESSION_ID" ]; then
+            PPID_START=$(LANG=C ps -o lstart= -p $PPID 2>/dev/null | tr -s ' ')
+            if [ -n "$PPID_START" ]; then
+                SESSION_ID="ppid-${PPID}-$(echo "$PPID_START" | cksum | cut -d' ' -f1)"
+            else
+                SESSION_ID="pid-$$-$TS"
+            fi
+        fi
+
+        PID_START=$(LANG=C ps -o lstart= -p $PPID 2>/dev/null | xargs -I{} date -j -f "%c" "{}" "+%s" 2>/dev/null || echo "0")
 
         mkdir -p "$EVENTS_DIR"
 
-        printf '{\"event\":\"%s\",\"ts\":%s,\"session_id\":\"%s\",\"pid\":%s,\"pid_start\":%s}\\n' \\
-            "$EVENT_TYPE" "$TS" "$SESSION_ID" "$PID" "$PID_START" >> "$EVENTS_FILE"
+        (
+            flock -x 200 2>/dev/null || true
+            printf '{\"event\":\"%s\",\"ts\":%s,\"session_id\":\"%s\",\"pid\":%s,\"pid_start\":%s}\\n' \\
+                "$EVENT_TYPE" "$TS" "$SESSION_ID" "$PPID" "$PID_START" >> "$EVENTS_FILE"
+        ) 200>"$LOCK_FILE"
         """
         try script.write(toFile: hookScriptPath, atomically: true, encoding: .utf8)
     }
@@ -197,9 +213,8 @@ final class HookInstaller {
 
         settings["hooks"] = hooks
 
-        // Write back
-        let jsonData = try JSONSerialization.data(withJSONObject: settings, options: [.prettyPrinted, .sortedKeys])
-        try jsonData.write(to: URL(fileURLWithPath: claudeSettingsPath))
+        // Atomic write: temp file + rename
+        try atomicWriteJSON(settings, to: claudeSettingsPath)
     }
 
     private func removeFromClaudeSettings() throws {
@@ -229,7 +244,29 @@ final class HookInstaller {
             settings["hooks"] = hooks
         }
 
-        let jsonData = try JSONSerialization.data(withJSONObject: settings, options: [.prettyPrinted, .sortedKeys])
-        try jsonData.write(to: URL(fileURLWithPath: claudeSettingsPath))
+        try atomicWriteJSON(settings, to: claudeSettingsPath)
+    }
+
+    /// Write JSON to file atomically: write temp file, fsync, rename.
+    /// rename() is atomic on macOS APFS/HFS+ and replaces the destination.
+    private func atomicWriteJSON(_ object: [String: Any], to path: String) throws {
+        let jsonData = try JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys])
+        let tmpPath = path + ".tmp"
+        let tmpURL = URL(fileURLWithPath: tmpPath)
+
+        try jsonData.write(to: tmpURL)
+
+        // fsync to ensure data is on disk before rename
+        if let fd = fopen(tmpPath, "r") {
+            fsync(fileno(fd))
+            fclose(fd)
+        }
+
+        // Atomic rename (replaces destination if it exists)
+        if rename(tmpPath, path) != 0 {
+            // Fallback: remove tmp and write directly
+            try? FileManager.default.removeItem(atPath: tmpPath)
+            try jsonData.write(to: URL(fileURLWithPath: path))
+        }
     }
 }

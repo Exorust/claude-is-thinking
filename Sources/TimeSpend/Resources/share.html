@@ -162,7 +162,7 @@ body {
   <button class="refresh-btn" onclick="refreshCard()" title="New tagline">&#x21BB;</button>
 </div>
 
-<div class="toast" id="toast">&#x2713; Image copied to clipboard! Opening browser...</div>
+<div class="toast" id="toast">&#x2713; Image copied to clipboard &amp; saved to Downloads! Opening browser...</div>
 
 <div class="share-grid">
   <button class="share-dest" onclick="shareTo('twitter')">
@@ -195,7 +195,7 @@ body {
   </button>
 </div>
 
-<div class="hint">Image is copied to clipboard first. Press Cmd+V to paste it in your post!</div>
+<div class="hint">Image is copied to clipboard &amp; saved to ~/Downloads. Press Cmd+V to paste it in your post!</div>
 
 <script>
 let currentPeriod = 'week';
@@ -230,7 +230,7 @@ function getShareText() {
   const total = formatDuration(isWeekly ? dashData.weekTotal : dashData.todayTotal);
   const period = isWeekly ? 'this week' : 'today';
   const prompts = isWeekly ? dashData.weekPrompts : dashData.todayPrompts;
-  return 'I spent ' + total + ' waiting for Claude Code ' + period + '. ' + prompts + ' prompts. How much time are you wasting? Claude is Thinking?';
+  return 'I spent ' + total + ' waiting for Claude Code ' + period + '. ' + prompts + ' prompts. How much time are you wasting? claudeisthinking.com';
 }
 
 function formatDuration(seconds) {
