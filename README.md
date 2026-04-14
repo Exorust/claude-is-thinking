@@ -31,17 +31,18 @@ A macOS menu bar app that tracks how long you spend waiting for Claude Code to r
 
 ```bash
 brew tap Exorust/tap
-brew install --cask --no-quarantine claude-still-thinking
+brew install --cask claude-still-thinking
 ```
 
 ### Download
 
-Grab the latest `.dmg` from [Releases](../../releases). Open it. Drag to Applications. Question nothing.
+Grab the latest `.dmg` from [Releases](../../releases). Open it. Drag to Applications.
 
-> **macOS Gatekeeper note:** The app isn't code-signed yet, so macOS may say it's "damaged." Fix it with:
+> **Note:** The app isn't code-signed yet. If macOS says it's "damaged," run:
 > ```bash
 > xattr -cr "/Applications/Claude Still Thinking?.app"
 > ```
+> Or right-click the app → Open → click "Open" in the dialog.
 
 ### Build from source
 
