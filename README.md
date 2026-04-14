@@ -14,9 +14,7 @@
 
 </div>
 
-## What It Does
-
-A macOS menu bar app that tracks how long you spend waiting for Claude Code to respond. It won't make Claude faster. It will make you aware of how much time you spend in a long-distance relationship with an autocomplete.
+## Features
 
 - **Live timer** in the menu bar while Claude is thinking (the number goes up. that's the feature.)
 - **Dashboard** with today's total, weekly chart, average wait, longest session, and recent activity
@@ -27,15 +25,16 @@ A macOS menu bar app that tracks how long you spend waiting for Claude Code to r
 
 ## Install
 
-One command. Builds from source, copies to Applications. We build from source because Apple's Gatekeeper will block any app that isn't signed with a $99/year developer certificate — even if the code is fully open source and you can read every line. Thanks, Apple.
+Requires macOS 13+ and Swift 5.9+. One command, about a minute.
 
 ```bash
 git clone https://github.com/Exorust/claude-still-thinking.git && cd claude-still-thinking/TimeSpend && ./scripts/install.sh
 ```
 
-Requires Swift 5.9+ and macOS 13+. Takes about a minute.
+We build from source because Apple's Gatekeeper blocks any app that isn't signed with a $99/year developer certificate — even if the code is fully open source and you can read every line. Building locally sidesteps all of that. Thanks, Apple.
 
-### Other options
+<details>
+<summary><b>Alternative installs</b> (Homebrew / DMG)</summary>
 
 **Homebrew:**
 ```bash
@@ -43,7 +42,11 @@ brew tap Exorust/tap
 brew install --cask claude-still-thinking
 ```
 
-**DMG:** Grab the latest `.dmg` from [Releases](../../releases). If macOS says it's "damaged," right-click → Open → click "Open", or run `xattr -cr "/Applications/Claude Still Thinking?.app"`.
+**DMG:** Grab the latest `.dmg` from [Releases](../../releases). If macOS says it's "damaged" (see above re: Apple), right-click the app → Open → click "Open", or run:
+```bash
+xattr -cr "/Applications/Claude Still Thinking?.app"
+```
+</details>
 
 ## How It Works
 
@@ -51,12 +54,10 @@ Claude Still Thinking? uses [Claude Code hooks](https://docs.anthropic.com/en/do
 
 On first launch, click **Enable Tracking** to install two hooks into `~/.claude/settings.json`:
 
-- `UserPromptSubmit` — fires when you send a prompt (starts the clock on your existential wait)
-- `Stop` — fires when Claude finishes responding (sweet relief)
+- **`UserPromptSubmit`** — fires when you send a prompt (starts the clock)
+- **`Stop`** — fires when Claude finishes responding (sweet relief)
 
-Events are written to a local JSONL file, paired into sessions, and stored in SQLite. That's it. No cloud. No telemetry. Just you and your numbers.
-
-**Your data never leaves your Mac.**
+Events are written to a local JSONL file, paired into sessions, and stored in SQLite. No cloud. No telemetry. Just you and your numbers.
 
 ## Usage
 
@@ -68,24 +69,15 @@ Events are written to a local JSONL file, paired into sessions, and stored in SQ
 
 ### Settings
 
-- **Touch grass threshold** — when to start nudging you (2m, 3m, or 5m of cumulative wait time)
+- **Touch grass threshold** — when to start nudging you (2m, 3m, or 5m)
 - **Accent color** — Claude Orange or Terminal Green
 - **Theme** — System, Light, or Dark
-- **Launch at login** — start automatically, because you'll forget otherwise
-- **Disable tracking** — for when ignorance becomes bliss again
+- **Launch at login** — because you'll forget otherwise
+- **Disable tracking** — for when ignorance becomes bliss
 
 ## Privacy
 
-- **Never** reads your terminal content or Claude Code conversations
-- Only records timestamps: when a prompt was sent and when a response finished
-- All data is stored locally. Nothing is sent anywhere. Ever.
-- Share cards are generated locally. Social sharing opens your browser with the image on your clipboard.
-
-## Requirements
-
-- macOS 13 (Ventura) or later
-- Claude Code CLI installed
-- A willingness to confront uncomfortable truths about your workflow
+Your data never leaves your Mac. The app never reads your terminal content or Claude Code conversations — it only records timestamps. Share cards are generated locally. Nothing is sent anywhere. Ever.
 
 ## License
 
