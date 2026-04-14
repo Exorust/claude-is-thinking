@@ -27,7 +27,7 @@ A macOS menu bar app that tracks how long you spend waiting for Claude Code to r
 
 ## Install
 
-One command. Builds from source, copies to Applications, no Gatekeeper drama.
+One command. Builds from source, copies to Applications. We build from source because Apple's Gatekeeper will block any app that isn't signed with a $99/year developer certificate — even if the code is fully open source and you can read every line. Thanks, Apple.
 
 ```bash
 git clone https://github.com/Exorust/claude-still-thinking.git && cd claude-still-thinking/TimeSpend && ./scripts/install.sh
